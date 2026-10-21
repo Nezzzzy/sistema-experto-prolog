@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Automotriz Avanzado</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+        :root {
+            --bg-base: #050505;
+            --bg-surface: #121212;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.4);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.4);
+            --border: #27272a;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, #1f2937 0%, transparent 50%);
+        }
+
+        /* Encabezado */
+        header {
+            text-align: center;
+            margin-top: 4rem;
+            margin-bottom: 3rem;
+            animation: fadeDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, #9ca3af);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Contenedor fluido sin cajas marcadas */
+        .main-container {
+            width: 100%;
+            max-width: 900px;
+            padding: 0 2rem;
+            box-sizing: border-box;
+        }
+
+        /* Nube de síntomas (Píldoras) */
+        .symptoms-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+
+        .symptom-pill {
+            position: relative;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .symptom-pill input {
+            display: none; /* Ocultamos el checkbox real */
+        }
+
+        .pill-design {
+            display: inline-block;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 400;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Animación y luces al seleccionar */
+        .symptom-pill input:checked + .pill-design {
+            background: var(--bg-base);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 20px var(--accent-glow), inset 0 0 10px var(--accent-glow);
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .symptom-pill:hover .pill-design {
+            border-color: #4b5563;
+        }
+
+        /* Botón de Escaneo */
+        .scan-btn {
+            display: block;
+            margin: 0 auto;
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        .scan-btn:hover {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 0 25px var(--accent-glow);
+        }
+
+        .scan-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Pantalla de Escaneo (Cargando) */
+        #scanner {
+            display: none;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .radar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            margin: 0 auto 1rem;
+            animation: spin 1s linear infinite;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .scanning-text {
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: 2px;
+            animation: pulseText 1.5s infinite;
+        }
+
+        /* Resultados */
+        #resultados {
+            display: none;
+            margin-top: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        .result-bar {
+            background: linear-gradient(90deg, rgba(18,18,18,0.8) 0%, rgba(5,5,5,0) 100%);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            animation: slideRight 0.5s ease-out forwards;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        .result-bar.warning { border-left-color: var(--danger); }
+        .result-bar.warning h3 { color: var(--danger); }
+
+        .result-bar h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.4rem;
+            color: var(--accent);
+            letter-spacing: 1px;
+        }
+
+        .result-bar p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 1.05rem;
+        }
+
+        /* Keyframes para Animaciones */
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes pulseText {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        @keyframes slideRight {
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>DIAGNÓSTICO AUTOMOTRIZ</h1>
+        <p class="subtitle">Identificación de anomalías mediante motor de inferencia lógica</p>
+    </header>
+
+    <div class="main-container">
+        <form id="form-diagnostico">
+            
+            <div class="symptoms-cloud">
+                <label class="symptom-pill">
+                    <input type="checkbox" value="dificultad_encendido">
+                    <span class="pill-design">Dificultad al encender</span>
+                </label>
+                <label class="symptom-pill">
+                    <input type="checkbox" value="luces_debiles">
+                    <span class="pill-design">Luces débiles</span>
+                </label>
+                <label class="symptom-pill">
+                    <input type="checkbox" value="humo_blanco">
+                    <span class="pill-design">Humo blanco por escape</span>
+                </label>
+                <label class="symptom-pill">
+                    <input type="checkbox" value="sobrecalentamiento">
+                    <span class="pill-design">Motor sobrecalentado</span>
+                </label>
+                <label class="symptom-pill">
+                    <input type="checkbox" value="chirrido_frenos">
+                    <span class="pill-design">Chirrido al frenar</span>
+                </label>
+                <label class="symptom-pill">
+                    <input type="checkbox" value="volante_vibra">
+                    <span class="pill-design">Vibración en volante</span>
+                </label>
+                <label class="symptom-pill">
+                    <input type="checkbox" value="charco_liquido_verde">
+                    <span class="pill-design">Líquido verde en piso</span>
+                </label>
+                <label class="symptom-pill">
+                    <input type="checkbox" value="testigo_bateria">
+                    <span class="pill-design">Testigo de batería</span>
+                </label>
+            </div>
+
+            <button type="submit" class="scan-btn" id="btn-submit">Ejecutar Escáner</button>
+        </form>
+
+        <div id="scanner">
+            <div class="radar"></div>
+            <div class="scanning-text">ANALIZANDO MATRIZ DE SÍNTOMAS...</div>
+        </div>
+
+        <div id="resultados"></div>
+    </div>
+
+    <script>
+        document.getElementById('form-diagnostico').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const sintomas = Array.from(document.querySelectorAll('input:checked')).map(el => el.value);
+
+            if (sintomas.length === 0) {
+                alert("SISTEMA: Requiere al menos un síntoma para iniciar evaluación.");
+                return;
+            }
+
+            const btnSubmit = document.getElementById('btn-submit');
+            const divScanner = document.getElementById('scanner');
+            const divResultados = document.getElementById('resultados');
+
+            // UI Transición a escaneo
+            btnSubmit.style.display = 'none';
+            divResultados.style.display = 'none';
+            divScanner.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/consultar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sintomas })
+                });
+
+                const data = await response.json();
+                
+                // Pequeño retraso artificial para ver la animación del radar
+                setTimeout(() => {
+                    divScanner.style.display = 'none';
+                    btnSubmit.style.display = 'block';
+                    btnSubmit.innerText = 'NUEVO ESCANEO';
+                    
+                    if (data.error) {
+                        divResultados.innerHTML = `<div class="result-bar warning"><h3>ERROR DEL SISTEMA</h3><p>${data.error}</p></div>`;
+                    } else {
+                        divResultados.innerHTML = '';
+                        data.diagnosticos.forEach((diag, index) => {
+                            // Si la falla es "sin coincidencias", usamos el color rojo (warning)
+                            const isWarning = diag.causa === 'sin_coincidencias' ? 'warning' : '';
+                            const delay = index * 0.2; // Cascada visual para las respuestas
+                            
+                            divResultados.innerHTML += `
+                                <div class="result-bar ${isWarning}" style="animation-delay: ${delay}s">
+                                    <h3>FALLA: ${diag.causa.replace(/_/g, ' ').toUpperCase()}</h3>
+                                    <p>> ${diag.recomendacion}</p>
+                                </div>
+                            `;
+                        });
+                    }
+                    divResultados.style.display = 'block';
+                }, 1200);
+
+            } catch (error) {
+                divScanner.style.display = 'none';
+                btnSubmit.style.display = 'block';
+                divResultados.style.display = 'block';
+                divResultados.innerHTML = `<div class="result-bar warning"><h3>ERROR DE COMUNICACIÓN</h3><p>${error.message}</p></div>`;
+            }
+        });
+    </script>
+</body>
+</html>

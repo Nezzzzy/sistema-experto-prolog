@@ -1,0 +1,12 @@
+{
+  "name": "sistema-experto-prolog",
+  "version": "1.0.0",
+  "description": "API y Servidor para Motor Prolog",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
