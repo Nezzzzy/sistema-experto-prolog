@@ -3,298 +3,395 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diagnóstico Automotriz Avanzado</title>
+    <title>OBD-II Smart Diagnostic System</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
         :root {
-            --bg-base: #050505;
-            --bg-surface: #121212;
-            --text-main: #f3f4f6;
-            --text-muted: #9ca3af;
-            --accent: #3b82f6;
-            --accent-glow: rgba(59, 130, 246, 0.4);
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
             --danger: #ef4444;
-            --danger-glow: rgba(239, 68, 68, 0.4);
-            --border: #27272a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: var(--bg-base);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
             color: var(--text-main);
             margin: 0;
             padding: 0;
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% 0%, #1f2937 0%, transparent 50%);
-        }
-
-        /* Encabezado */
-        header {
-            text-align: center;
-            margin-top: 4rem;
-            margin-bottom: 3rem;
-            animation: fadeDown 0.8s ease-out;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin: 0;
-            letter-spacing: -1px;
-            background: linear-gradient(to right, #fff, #9ca3af);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        p.subtitle {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            margin-top: 0.5rem;
-        }
-
-        /* Contenedor fluido sin cajas marcadas */
-        .main-container {
-            width: 100%;
-            max-width: 900px;
-            padding: 0 2rem;
-            box-sizing: border-box;
-        }
-
-        /* Nube de síntomas (Píldoras) */
-        .symptoms-cloud {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 3rem;
-            animation: fadeIn 1s ease-out 0.3s both;
-        }
-
-        .symptom-pill {
-            position: relative;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .symptom-pill input {
-            display: none; /* Ocultamos el checkbox real */
-        }
-
-        .pill-design {
-            display: inline-block;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 400;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Animación y luces al seleccionar */
-        .symptom-pill input:checked + .pill-design {
-            background: var(--bg-base);
-            border-color: var(--accent);
-            color: #fff;
-            box-shadow: 0 0 20px var(--accent-glow), inset 0 0 10px var(--accent-glow);
-            transform: translateY(-2px) scale(1.05);
-        }
-
-        .symptom-pill:hover .pill-design {
-            border-color: #4b5563;
-        }
-
-        /* Botón de Escaneo */
-        .scan-btn {
-            display: block;
-            margin: 0 auto;
-            background: transparent;
-            color: var(--accent);
-            border: 2px solid var(--accent);
-            padding: 16px 40px;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 1.2rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            cursor: pointer;
-            position: relative;
             overflow: hidden;
-            transition: all 0.3s;
-            animation: fadeIn 1s ease-out 0.6s both;
         }
 
-        .scan-btn:hover {
-            background: var(--accent);
-            color: #fff;
-            box-shadow: 0 0 25px var(--accent-glow);
+        /* Navbar */
+        nav {
+            background-color: #0b1120;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
         }
 
-        .scan-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Pantalla de Escaneo (Cargando) */
-        #scanner {
-            display: none;
-            text-align: center;
-            margin-top: 2rem;
-        }
-
-        .radar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 2px solid var(--border);
-            border-top-color: var(--accent);
-            margin: 0 auto 1rem;
-            animation: spin 1s linear infinite;
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-
-        .scanning-text {
-            color: var(--accent);
-            font-weight: 600;
-            letter-spacing: 2px;
-            animation: pulseText 1.5s infinite;
-        }
-
-        /* Resultados */
-        #resultados {
-            display: none;
-            margin-top: 2rem;
-            padding-bottom: 4rem;
-        }
-
-        .result-bar {
-            background: linear-gradient(90deg, rgba(18,18,18,0.8) 0%, rgba(5,5,5,0) 100%);
-            border-left: 4px solid var(--accent);
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            animation: slideRight 0.5s ease-out forwards;
-            opacity: 0;
-            transform: translateX(-20px);
-        }
-
-        .result-bar.warning { border-left-color: var(--danger); }
-        .result-bar.warning h3 { color: var(--danger); }
-
-        .result-bar h3 {
-            margin: 0 0 8px 0;
-            font-size: 1.4rem;
-            color: var(--accent);
+        nav .logo {
+            font-size: 1.2rem;
+            font-weight: 700;
             letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .result-bar p {
-            margin: 0;
+        nav .status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        nav .status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        /* Main Layout */
+        .app-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar - Car Info */
+        .sidebar {
+            width: 350px;
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .car-graphic {
+            text-align: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px;
+            border: 1px dashed var(--border);
+        }
+
+        .car-graphic svg {
+            width: 100%;
+            max-width: 250px;
+            opacity: 0.7;
+        }
+
+        .terminal {
+            background-color: #0b1120;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
             color: var(--text-muted);
-            font-size: 1.05rem;
+            height: 150px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
         }
 
-        /* Keyframes para Animaciones */
-        @keyframes fadeDown {
-            from { opacity: 0; transform: translateY(-30px); }
+        .terminal p { margin: 5px 0; }
+        .terminal .log-highlight { color: var(--primary); }
+        .terminal .log-error { color: var(--danger); }
+
+        /* Main Content - Symptoms & Results */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .section-header {
+            margin-bottom: 25px;
+        }
+        
+        .section-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .section-header p {
+            margin: 5px 0 0 0;
+            color: var(--text-muted);
+        }
+
+        /* Symptoms Grid */
+        .symptoms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .symptom-card {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .symptom-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .symptom-card input[type="checkbox"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            outline: none;
+            transition: 0.2s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .symptom-card input[type="checkbox"]:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .symptom-card input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            top: -1px;
+            left: 3px;
+        }
+
+        /* Scan Button */
+        .action-bar {
+            position: sticky;
+            bottom: 0;
+            background: linear-gradient(0deg, var(--bg-dark) 50%, transparent);
+            padding: 20px 0;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-scan {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-scan:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+        }
+
+        /* Results Overlay */
+        #results-container {
+            display: none;
+            margin-top: 30px;
+            border-top: 1px solid var(--border);
+            padding-top: 30px;
+        }
+
+        .result-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .result-card h3 {
+            color: var(--primary);
+            margin: 0 0 10px 0;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-card p {
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        .result-card.warning { border-color: var(--warning); }
+        .result-card.warning h3 { color: var(--warning); }
+        
+        .result-card.error { border-color: var(--danger); }
+        .result-card.error h3 { color: var(--danger); }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        @keyframes pulseText {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        @keyframes slideRight {
-            to { opacity: 1; transform: translateX(0); }
-        }
+
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>DIAGNÓSTICO AUTOMOTRIZ</h1>
-        <p class="subtitle">Identificación de anomalías mediante motor de inferencia lógica</p>
-    </header>
+    <nav>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+            <!-- AQUI SE LE PUEDE PONER TITULO-->
+        </div>
+        <div class="status">LINK ESTABLECIDO</div>
+    </nav>
 
-    <div class="main-container">
-        <form id="form-diagnostico">
-            
-            <div class="symptoms-cloud">
-                <label class="symptom-pill">
-                    <input type="checkbox" value="dificultad_encendido">
-                    <span class="pill-design">Dificultad al encender</span>
-                </label>
-                <label class="symptom-pill">
-                    <input type="checkbox" value="luces_debiles">
-                    <span class="pill-design">Luces débiles</span>
-                </label>
-                <label class="symptom-pill">
-                    <input type="checkbox" value="humo_blanco">
-                    <span class="pill-design">Humo blanco por escape</span>
-                </label>
-                <label class="symptom-pill">
-                    <input type="checkbox" value="sobrecalentamiento">
-                    <span class="pill-design">Motor sobrecalentado</span>
-                </label>
-                <label class="symptom-pill">
-                    <input type="checkbox" value="chirrido_frenos">
-                    <span class="pill-design">Chirrido al frenar</span>
-                </label>
-                <label class="symptom-pill">
-                    <input type="checkbox" value="volante_vibra">
-                    <span class="pill-design">Vibración en volante</span>
-                </label>
-                <label class="symptom-pill">
-                    <input type="checkbox" value="charco_liquido_verde">
-                    <span class="pill-design">Líquido verde en piso</span>
-                </label>
-                <label class="symptom-pill">
-                    <input type="checkbox" value="testigo_bateria">
-                    <span class="pill-design">Testigo de batería</span>
-                </label>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div>
+                <div class="car-graphic">
+                    <!-- Vector simple de auto -->
+                    <svg viewBox="0 0 100 50" fill="none" stroke="var(--primary)" stroke-width="2">
+                        <path d="M20 30 L25 15 L75 15 L80 30 L95 30 L95 40 L5 40 L5 30 Z" />
+                        <circle cx="25" cy="40" r="6" fill="var(--bg-panel)" />
+                        <circle cx="75" cy="40" r="6" fill="var(--bg-panel)" />
+                    </svg>
+                    <h3 style="margin-top: 15px; margin-bottom: 5px;">ESCANEO TELEMÁTICO</h3>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Motor de Inferencia Activo</p>
+                </div>
             </div>
 
-            <button type="submit" class="scan-btn" id="btn-submit">Ejecutar Escáner</button>
-        </form>
+            <div class="terminal" id="terminal-log">
+                <p> > Inicializando subsistemas...</p>
+                <p> > Prolog Engine: <span class="log-highlight">ONLINE</span></p>
+                <p> > Esperando parámetros de entrada...</p>
+            </div>
+        </aside>
 
-        <div id="scanner">
-            <div class="radar"></div>
-            <div class="scanning-text">ANALIZANDO MATRIZ DE SÍNTOMAS...</div>
-        </div>
+        <main class="main-content">
+            
+            <div id="selection-area">
+                <div class="section-header">
+                    <h2>Panel de Diagnóstico</h2>
+                    <p>Seleccione las anomalías detectadas en el vehículo para iniciar la evaluación lógica.</p>
+                </div>
 
-        <div id="resultados"></div>
+                <form id="form-diagnostico">
+                    <div class="symptoms-grid">
+                        <label class="symptom-card"><input type="checkbox" value="dificultad_encendido"> Dificultad al encender</label>
+                        <label class="symptom-card"><input type="checkbox" value="luces_debiles"> Luces débiles</label>
+                        <label class="symptom-card"><input type="checkbox" value="humo_blanco"> Humo blanco por escape</label>
+                        <label class="symptom-card"><input type="checkbox" value="humo_negro"> Humo negro por escape</label>
+                        <label class="symptom-card"><input type="checkbox" value="sobrecalentamiento"> Motor sobrecalentado</label>
+                        <label class="symptom-card"><input type="checkbox" value="chirrido_frenos"> Chirrido al frenar</label>
+                        <label class="symptom-card"><input type="checkbox" value="volante_vibra"> Vibración en volante</label>
+                        <label class="symptom-card"><input type="checkbox" value="tirones_motor"> Tirones en el motor</label>
+                        <label class="symptom-card"><input type="checkbox" value="charco_liquido_verde"> Líquido verde en piso</label>
+                        <label class="symptom-card"><input type="checkbox" value="charco_liquido_negro"> Líquido negro en piso</label>
+                        <label class="symptom-card"><input type="checkbox" value="olor_combustible"> Olor a combustible</label>
+                        <label class="symptom-card"><input type="checkbox" value="pedal_freno_suave"> Pedal de freno suave</label>
+                        <label class="symptom-card"><input type="checkbox" value="perdida_potencia"> Pérdida de potencia</label>
+                        <label class="symptom-card"><input type="checkbox" value="testigo_bateria"> Testigo de batería</label>
+                        <label class="symptom-card"><input type="checkbox" value="testigo_aceite"> Testigo de aceite</label>
+                        <label class="symptom-card"><input type="checkbox" value="ruido_metalico"> Ruido metálico</label>
+                        <label class="symptom-card"><input type="checkbox" value="olor_quemado"> Olor a quemado</label>
+                        <label class="symptom-card"><input type="checkbox" value="frenos_largos"> Frenado muy largo</label>
+                        <label class="symptom-card"><input type="checkbox" value="ralenti_inestable"> Ralentí inestable</label>
+                        <label class="symptom-card"><input type="checkbox" value="consumo_excesivo"> Consumo excesivo</label>
+                        <label class="symptom-card"><input type="checkbox" value="manchas_piso"> Manchas en el piso</label>
+                    </div>
+
+                    <div class="action-bar">
+                        <button type="submit" class="btn-scan" id="btn-submit">
+                            INICIAR PROTOCOLO
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="results-container">
+                <div class="section-header">
+                    <h2>Reporte de Sistema</h2>
+                    <p>Conclusiones derivadas del motor de inferencia.</p>
+                </div>
+                <div id="resultados-lista"></div>
+                
+                <button class="btn-scan" style="margin-top: 20px; background-color: var(--border);" onclick="reiniciarEscaneo()">
+                    NUEVO DIAGNÓSTICO
+                </button>
+            </div>
+
+        </main>
     </div>
 
     <script>
+        const logTerminal = (msg, type = 'normal') => {
+            const term = document.getElementById('terminal-log');
+            const colorClass = type === 'error' ? 'log-error' : (type === 'highlight' ? 'log-highlight' : '');
+            term.innerHTML += `<p> > <span class="${colorClass}">${msg}</span></p>`;
+            term.scrollTop = term.scrollHeight;
+        };
+
+        const reiniciarEscaneo = () => {
+            document.getElementById('results-container').style.display = 'none';
+            document.getElementById('selection-area').style.display = 'block';
+            document.getElementById('resultados-lista').innerHTML = '';
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            logTerminal('Sistema reiniciado. Esperando parámetros...');
+        };
+
         document.getElementById('form-diagnostico').addEventListener('submit', async (e) => {
             e.preventDefault();
             const sintomas = Array.from(document.querySelectorAll('input:checked')).map(el => el.value);
 
             if (sintomas.length === 0) {
-                alert("SISTEMA: Requiere al menos un síntoma para iniciar evaluación.");
+                logTerminal('Fallo: No se ingresaron síntomas', 'error');
+                alert("Seleccione al menos un síntoma.");
                 return;
             }
 
-            const btnSubmit = document.getElementById('btn-submit');
-            const divScanner = document.getElementById('scanner');
-            const divResultados = document.getElementById('resultados');
+            logTerminal(`Compilando ${sintomas.length} anomalías...`, 'highlight');
+            logTerminal('Llamando a motor Prolog vía Node.js...');
 
-            // UI Transición a escaneo
-            btnSubmit.style.display = 'none';
-            divResultados.style.display = 'none';
-            divScanner.style.display = 'block';
+            const divResultadosLista = document.getElementById('resultados-lista');
+            document.getElementById('selection-area').style.display = 'none';
+            document.getElementById('results-container').style.display = 'block';
+            divResultadosLista.innerHTML = '<p>Procesando reglas lógicas...</p>';
 
             try {
                 const response = await fetch('/api/consultar', {
@@ -303,39 +400,33 @@
                     body: JSON.stringify({ sintomas })
                 });
 
-                const data = await response.json();
-                
-                // Pequeño retraso artificial para ver la animación del radar
-                setTimeout(() => {
-                    divScanner.style.display = 'none';
-                    btnSubmit.style.display = 'block';
-                    btnSubmit.innerText = 'NUEVO ESCANEO';
-                    
-                    if (data.error) {
-                        divResultados.innerHTML = `<div class="result-bar warning"><h3>ERROR DEL SISTEMA</h3><p>${data.error}</p></div>`;
-                    } else {
-                        divResultados.innerHTML = '';
-                        data.diagnosticos.forEach((diag, index) => {
-                            // Si la falla es "sin coincidencias", usamos el color rojo (warning)
-                            const isWarning = diag.causa === 'sin_coincidencias' ? 'warning' : '';
-                            const delay = index * 0.2; // Cascada visual para las respuestas
-                            
-                            divResultados.innerHTML += `
-                                <div class="result-bar ${isWarning}" style="animation-delay: ${delay}s">
-                                    <h3>FALLA: ${diag.causa.replace(/_/g, ' ').toUpperCase()}</h3>
-                                    <p>> ${diag.recomendacion}</p>
-                                </div>
-                            `;
-                        });
-                    }
-                    divResultados.style.display = 'block';
-                }, 1200);
+                // Protección contra caídas (Previene el error de "Unexpected end of JSON input")
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("El servidor devolvió un error interno o colapsó (No es JSON).");
+                }
 
+                const data = await response.json();
+                divResultadosLista.innerHTML = '';
+                
+                if (data.error) {
+                    logTerminal('Error lógico en la evaluación', 'error');
+                    divResultadosLista.innerHTML = `<div class="result-card error"><h3>ERROR</h3><p>${data.error}</p></div>`;
+                } else {
+                    logTerminal('Evaluación exitosa. Imprimiendo reporte.', 'highlight');
+                    data.diagnosticos.forEach((diag) => {
+                        const styleClass = diag.causa === 'sin_coincidencias' ? 'warning' : '';
+                        divResultadosLista.innerHTML += `
+                            <div class="result-card ${styleClass}">
+                                <h3>⚠ FALLA: ${diag.causa.replace(/_/g, ' ').toUpperCase()}</h3>
+                                <p><strong>SOLUCIÓN RECOMENDADA:</strong> ${diag.recomendacion}</p>
+                            </div>
+                        `;
+                    });
+                }
             } catch (error) {
-                divScanner.style.display = 'none';
-                btnSubmit.style.display = 'block';
-                divResultados.style.display = 'block';
-                divResultados.innerHTML = `<div class="result-bar warning"><h3>ERROR DE COMUNICACIÓN</h3><p>${error.message}</p></div>`;
+                logTerminal(`Error crítico de conexión: ${error.message}`, 'error');
+                divResultadosLista.innerHTML = `<div class="result-card error"><h3>FALLO DE COMUNICACIÓN</h3><p>No se pudo contactar al motor Prolog. Detalle: ${error.message}</p></div>`;
             }
         });
     </script>

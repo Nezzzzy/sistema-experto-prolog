@@ -1,7 +1,6 @@
 :- use_module(library(http/json)).
 
 % --- Base de conocimientos de los sintomas del carro ---
-% Estos son los datos de entrada que puede seleccionar el usuario
 sintoma(dificultad_encendido).
 sintoma(luces_debiles).
 sintoma(humo_blanco).
@@ -25,13 +24,12 @@ sintoma(consumo_excesivo).
 sintoma(manchas_piso).
 
 % --- Reglas de inferencia ---
-% Si pasa esto y esto en la lista de sintomas, entonces la falla es X
 falla_detectada(bateria_muerta, Sints) :-
     member(dificultad_encendido, Sints),
     member(luces_debiles, Sints).
 
 falla_detectada(alternador_dano, Sints) :-
-    falla_detectada(bateria_muerta, Sints), % aqui se encadena con la de arriba
+    falla_detectada(bateria_muerta, Sints),
     member(testigo_bateria, Sints).
 
 falla_detectada(junta_culata_quemada, Sints) :-
@@ -76,20 +74,16 @@ solucion(llantas_desbalanceadas, "Llevalo a una llantera para que le hagan balan
 solucion(bujias_defectuosas, "Cambiar las bujias y checar los cables de encendido.").
 
 % --- Logica interna y preparacion para la API ---
-
-% Juntamos la falla inferida con su texto de solucion
 armar_diagnostico(Sints, Falla, Solucion) :-
     falla_detectada(Falla, Sints),
     solucion(Falla, Solucion).
 
-% Evaluamos todo y lo preparamos en una lista
 evaluar_carro(Sints, ResultadosFinales) :-
     findall(
         _{causa: Falla, recomendacion: Solucion},
         armar_diagnostico(Sints, Falla, Solucion),
         ListaTemp
     ),
-    % Si la lista sale vacia (no encontro nada), mandamos un aviso por defecto
     ( ListaTemp = [] ->
         ResultadosFinales = [_{causa: sin_coincidencias, recomendacion: "No encontre una falla exacta con esos sintomas. Mejor llevalo a un mecanico de confianza."}]
     ; ResultadosFinales = ListaTemp
